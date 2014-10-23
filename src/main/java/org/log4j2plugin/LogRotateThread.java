@@ -14,7 +14,7 @@ public class LogRotateThread extends Thread {
      * default constructor that should be used by normal users
      */
     public LogRotateThread() {
-        super("mobidia.LogRotateThread");
+        super("custom.LogRotateThread");
     }
 
     public static void registerPolicy(FTimeBasedTriggeringPolicy policy) {
