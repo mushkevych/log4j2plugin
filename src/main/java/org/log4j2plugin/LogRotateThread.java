@@ -18,7 +18,7 @@ public class LogRotateThread extends Thread {
      * default constructor that should be used by normal users
      */
     public LogRotateThread() {
-        super("mobidia.LogRotateThread");
+        super("log4j2plugin.LogRotateThread");
     }
 
     /**
@@ -49,8 +49,8 @@ public class LogRotateThread extends Thread {
         while (isRunning) {
             LogEvent logEvent = new EmptyLogEvent();
 
+            System.out.println("LogRotateThread: validating log rotation for #" + policies.size() + " policies");
             for (FTimeBasedTriggeringPolicy policy: policies) {
-                System.out.println("LogRotateThread: validating log rotation for " + policy.toString());
                 try {
                     policy.checkRollover(logEvent);
                 } catch (Exception e) {
@@ -74,8 +74,9 @@ public class LogRotateThread extends Thread {
     }
 
     public static void initializeAppenders(Collection<String> types) {
-        for (String msgTypes: types) {
-            StructuredDataMessage msg = new StructuredDataMessage(ID_SKIP, "", msgTypes);
+        for (String msgType: types) {
+            System.out.println("LogRotateThread: initializing appender for " + msgType);
+            StructuredDataMessage msg = new StructuredDataMessage(ID_SKIP, "", msgType);
             EventLogger.logEvent(msg);
         }
     }
