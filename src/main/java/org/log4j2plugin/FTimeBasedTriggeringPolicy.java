@@ -35,7 +35,12 @@ public class FTimeBasedTriggeringPolicy implements TriggeringPolicy {
 
     private RollingFileManager manager;
 
+    static {
+        System.out.println("FTimeBasedTriggeringPolicy: in static constructor");
+    }
+
     private FTimeBasedTriggeringPolicy(final int interval, final boolean modulate) {
+        System.out.println("FTimeBasedTriggeringPolicy: in constructor");
         timeBasedTriggeringPolicy = TimeBasedTriggeringPolicy.createPolicy(String.valueOf(interval), String.valueOf(modulate));
         LogRotateThread.registerPolicy(this);
     }
@@ -85,6 +90,7 @@ public class FTimeBasedTriggeringPolicy implements TriggeringPolicy {
     public static FTimeBasedTriggeringPolicy createPolicy(
             @PluginAttribute("interval") final String interval,
             @PluginAttribute("modulate") final String modulate) {
+        System.out.println("FTimeBasedTriggeringPolicy: in createPolicy method");
         final int increment = Integers.parseInt(interval, 1);
         final boolean mod = Boolean.parseBoolean(modulate);
         return new FTimeBasedTriggeringPolicy(increment, mod);
