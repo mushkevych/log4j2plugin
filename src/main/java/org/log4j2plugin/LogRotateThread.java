@@ -73,7 +73,7 @@ public class LogRotateThread extends Thread {
         }
     }
 
-    public static void initializeAppenders(List<String> types) {
+    public static void initializeAppenders(Collection<String> types) {
         for (String msgTypes: types) {
             StructuredDataMessage msg = new StructuredDataMessage(ID_SKIP, "", msgTypes);
             EventLogger.logEvent(msg);
