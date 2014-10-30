@@ -15,3 +15,7 @@ How-to:
 1. Register FTimeBasedTriggeringPolicy in the <Policies> tag
 2. Start LogRotateThread
 3. If using Routing, make sure to "pre-initialize" log appenders by calling **LogRotateThread.initializeAppenders** method
+
+
+Licensed under the Apache License, Version 2.0  
+[http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
