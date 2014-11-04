@@ -18,7 +18,6 @@ package org.log4j2plugin;
 
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.rolling.RollingFileManager;
-import org.apache.logging.log4j.core.appender.rolling.TimeBasedTriggeringPolicy;
 import org.apache.logging.log4j.core.appender.rolling.TriggeringPolicy;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
@@ -30,13 +29,15 @@ import org.apache.logging.log4j.core.util.Integers;
  */
 @Plugin(name = "FTimeBasedTriggeringPolicy", category = "Core", printObject = true)
 public class FTimeBasedTriggeringPolicy implements TriggeringPolicy {
-
-    private final TimeBasedTriggeringPolicy timeBasedTriggeringPolicy;
+    private long nextRollover;
+    private final int interval;
+    private final boolean modulate;
 
     private RollingFileManager manager;
 
     private FTimeBasedTriggeringPolicy(final int interval, final boolean modulate) {
-        timeBasedTriggeringPolicy = TimeBasedTriggeringPolicy.createPolicy(String.valueOf(interval), String.valueOf(modulate));
+        this.interval = interval;
+        this.modulate = modulate;
         LogRotateThread.registerPolicy(this);
     }
 
@@ -53,11 +54,16 @@ public class FTimeBasedTriggeringPolicy implements TriggeringPolicy {
     /**
      * Initialize the policy.
      * @param manager The RollingFileManager.
+     * @see org.apache.logging.log4j.core.appender.rolling.TimeBasedTriggeringPolicy.initialize(RollingFileManager)
      */
     @Override
     public void initialize(final RollingFileManager manager) {
         this.manager = manager;
-        timeBasedTriggeringPolicy.initialize(manager);
+
+        // LOG4J2-531: call getNextTime twice to force initialization of both prevFileTime and nextFileTime
+        manager.getPatternProcessor().getNextTime(manager.getFileTime(), interval, modulate);
+
+        nextRollover = manager.getPatternProcessor().getNextTime(manager.getFileTime(), interval, modulate);
     }
 
     /**
@@ -67,7 +73,12 @@ public class FTimeBasedTriggeringPolicy implements TriggeringPolicy {
      */
     @Override
     public boolean isTriggeringEvent(final LogEvent event) {
-        return timeBasedTriggeringPolicy.isTriggeringEvent(event);
+        final long now = event.getTimeMillis();
+        if (now > nextRollover) {
+            nextRollover = manager.getPatternProcessor().getNextTime(now, interval, modulate);
+            return true;
+        }
+        return false;
     }
 
     @Override
